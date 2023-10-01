@@ -16,7 +16,8 @@ sbit KEY4=P3^3;
 #define KEY4_PRESS	4
 #define KEY_UNPRESS	0	
 
-u16 LEDMode=1;
+u16 LEDMode=0;
+u16 LEDTime=2;
 
 void time1_init()
 {
@@ -35,19 +36,25 @@ void delay_10us(u16 ten_us)//延时函数
 
 u8 key_scan()
 {
-	if(KEY1==0)
+	if(KEY1==0||KEY2==0||KEY3==0||KEY4==0)
 	{
 		delay_10us(100);
-		while(KEY1==0)
-		delay_10us(100);
-		return KEY1_PRESS;
-	}
-	if(KEY2==0)
-	{
-		delay_10us(100);
-		while(KEY2==0)
-		delay_10us(100);
-		return KEY2_PRESS;
+		while(KEY1==0){
+			delay_10us(100);
+			return KEY1_PRESS;
+		}
+		while(KEY2==0){
+			delay_10us(100);
+			return KEY2_PRESS;
+		}
+		while(KEY3==0){
+			delay_10us(100);
+			return KEY3_PRESS;
+		}
+		while(KEY4==0){
+			delay_10us(100);
+			return KEY4_PRESS;
+		}
 	}
 }
 
@@ -59,8 +66,12 @@ void main()
 	{
 		if(key_scan())
 		{
-			if(key_scan()==KEY1_PRESS)LEDMode=KEY1_PRESS;
-			if(key_scan()==KEY2_PRESS)LEDMode=KEY2_PRESS;
+			if(key_scan()==KEY1_PRESS)LEDMode=1;
+			if(key_scan()==KEY2_PRESS)LEDMode=2;
+			if(key_scan()==KEY3_PRESS)LEDTime-=1;
+			if(key_scan()==KEY4_PRESS)LEDTime+=1;
+			if(LEDTime<=2)LEDTime=2;
+			if(LEDTime>=4)LEDTime=4;
 		}
 	}
 }
@@ -71,7 +82,7 @@ void time1() interrupt 3
 	TH1=0XFC;//定时器赋初值，1ms	
 	TL1=0X18;
 	count++;
-	if(count>=500)
+	if(count>=500*LEDTime)
 	{
 		count=0;
 		if(LEDMode==1)
